@@ -1,3 +1,5 @@
+#pragma once
+
 #include <libtcod.hpp>
 #include "actor.hpp"
 
@@ -9,6 +11,8 @@ class Engine {
 
         Engine();
         ~Engine();
+        void main_loop();
+        void render();
         // void update();
         // void render();
 

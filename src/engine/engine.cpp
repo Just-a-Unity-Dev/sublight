@@ -9,7 +9,7 @@ auto get_data_dir() -> std::filesystem::path {
         // If the current working directory is missing the data dir then it will assume it exists in any parent directory.
         root_directory /= "..";
         if (!std::filesystem::exists(root_directory)) {
-        throw std::runtime_error("Could not find the data directory.");
+            throw std::runtime_error("Could not find the data directory.");
         }
     }
     return root_directory / "assets";
@@ -39,7 +39,32 @@ Engine::Engine() {
 
 Engine::~Engine() {
     for (Actor* a : actors) {
-       delete a;
+        delete a;
     }
     actors.clear();
+}
+
+void Engine::render() {
+    // main rendering func
+    // literally just loops thru all actors
+    g_console.clear();
+    for (Actor* a : actors) {
+        tcod::print(g_console, {a->x, a->y}, a->character, a->color, std::nullopt);
+    }
+    g_context.present(g_console);
+}
+
+void Engine::main_loop() {
+    // begin render loop
+    render();
+
+    // handle input
+    SDL_Event event;
+    while (SDL_PollEvent(&event)) {
+        switch (event.type) {
+        case SDL_QUIT:
+            std::exit(EXIT_SUCCESS);
+            break;
+        }
+    }
 }
