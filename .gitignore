@@ -46,6 +46,11 @@ compile_commands.json
 CTestTestfile.cmake
 _deps
 
+# vcpkg
+*.vcxproj
+*.vcxproj.filters
+*.sln
+vcpkg-manifest-install.log
 
 ## Windows
 # Windows thumbnail cache files
