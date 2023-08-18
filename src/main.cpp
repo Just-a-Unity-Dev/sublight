@@ -15,7 +15,7 @@ Engine engine;
 int main() {
     try {
         while (true)
-            engine->main_loop();
+            engine.main_loop();
     } catch (const std::exception& exc) {
         std::cerr << exc.what() << "\n";
         throw;

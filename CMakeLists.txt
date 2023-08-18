@@ -6,7 +6,10 @@ if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
         CACHE STRING "Vcpkg toolchain file")
 endif()
 
-project(sublight LANGUAGES C CXX)
+project(
+    sublight  # Project name, change this as needed.
+    LANGUAGES C CXX
+)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin")  # Keep all runtime files in one directory.
 
@@ -31,6 +34,17 @@ if (MSVC)
     target_compile_options(${PROJECT_NAME} PRIVATE /W4)
 else()
     target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra)
+endif()
+
+if (EMSCRIPTEN)
+    # Attach data folder to Emscripten builds.
+    target_link_options(${PROJECT_NAME} PRIVATE --preload-file "${CMAKE_CURRENT_SOURCE_DIR}/data@data")
+    # Set output to html to generate preview pages, otherwise you'll have to make your own html.
+    set_target_properties(
+        ${PROJECT_NAME}
+        PROPERTIES
+            SUFFIX ".html"
+    )
 endif()
 
 find_package(SDL2 CONFIG REQUIRED)

@@ -62,9 +62,28 @@ void Engine::main_loop() {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
-        case SDL_QUIT:
-            std::exit(EXIT_SUCCESS);
-            break;
+            case SDL_QUIT:
+                std::exit(EXIT_SUCCESS);
+                break;
+            case SDL_KEYDOWN:
+                TCOD_mouse_t key;
+                tcod::sdl2::process_event(event, key);  // Convert a SDL key to a libtcod key event, to help port older code.
+                switch (event.key.keysym.sym) {
+                    case SDLK_DOWN:
+                        player->y++;
+                        break;
+                    case SDLK_RIGHT:
+                        player->x++;
+                        break;
+                    case SDLK_LEFT:
+                        player->x--;
+                        break;
+                    case SDLK_UP:
+                        player->y--;
+                        break;
+                }
+            case SDL_KEYUP:
+                player->y++;
         }
     }
 }

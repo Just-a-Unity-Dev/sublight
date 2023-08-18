@@ -16,8 +16,8 @@ class Engine {
         // void update();
         // void render();
 
-        static tcod::Console g_console;
-        static tcod::Context g_context;
+        tcod::Console g_console;
+        tcod::Context g_context;
 };
 
 extern Engine engine;
