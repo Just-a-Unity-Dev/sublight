@@ -66,6 +66,7 @@ void Engine::main_loop() {
                 std::exit(EXIT_SUCCESS);
                 break;
             case SDL_KEYDOWN:
+                // todo get rid of gravity
                 TCOD_mouse_t key;
                 tcod::sdl2::process_event(event, key);  // Convert a SDL key to a libtcod key event, to help port older code.
                 switch (event.key.keysym.sym) {
