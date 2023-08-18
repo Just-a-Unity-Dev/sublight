@@ -29,7 +29,7 @@ static tcod::Context g_context;  // The global libtcod context.
 void main_loop() {
     // Rendering.
     g_console.clear();
-    tcod::print(g_console, {0, 0}, "Hello World", TCOD_white, std::nullopt);
+    tcod::print(g_console, {0, 0}, "Sublight", TCOD_white, std::nullopt);
     g_context.present(g_console);
 
     // Handle input.
