@@ -10,13 +10,5 @@ void Actor::move(int dx, int dy) {
     y += dy;
 }
 
-// Moves the actor with a variable difference, accounts for collisions.
-void Actor::move_with_collision(int dx, int dy, Map& map) {
-    if (!map.isWall(x + dx, y + dy)) {
-        x += dx;
-        y += dy;
-    }
-}
-
 // Updates the actor.
 void Actor::update(tcod::Console &g_console, tcod::Context &g_context) {}

@@ -1,6 +1,3 @@
-#ifndef _TOOLS_H_
-#define _TOOLS_H_
-
 #pragma once
 
 #include <libtcod.hpp>
@@ -24,4 +21,3 @@ struct Engine {
 };
 
 extern Engine engine;
-#endif

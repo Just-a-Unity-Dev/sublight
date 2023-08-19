@@ -1,6 +1,6 @@
+#include <SDL.h>
 #include "engine.hpp"
 #include "actor.hpp"
-#include <SDL.h>
 
 /// Return the data directory.
 auto get_data_dir() -> std::filesystem::path {
@@ -35,7 +35,7 @@ Engine::Engine() : map(80,45) {
 
     g_context = tcod::Context(params);
 
-    actors.push_back(Actor(40,25,"@",TCOD_white));
+    actors.push_back(Actor(40,25,"@",tcod::ColorRGB{255,255,255}));
 }
 
 Engine::~Engine() {
@@ -89,10 +89,22 @@ void Engine::main_loop() {
                 tcod::sdl2::process_event(event, key);  // Convert a SDL key to a libtcod key event, to help port older code.
                 Actor& player = get_player();
                 switch (event.key.keysym.sym) {
-                    case SDLK_DOWN: player.move_with_collision(0,1,map); break;
-                    case SDLK_RIGHT: player.move_with_collision(1,0,map); break;
-                    case SDLK_LEFT: player.move_with_collision(-1,0,map); break;
-                    case SDLK_UP: player.move_with_collision(0,-1,map); break;
+                    case SDLK_DOWN:
+                        if (!map.is_wall(player.x, player.y + 1))
+                            player.move(0,1);
+                        break;
+                    case SDLK_RIGHT:
+                        if (!map.is_wall(player.x + 1, player.y))
+                            player.move(1,0);
+                        break;
+                    case SDLK_LEFT:
+                        if (!map.is_wall(player.x - 1, player.y))
+                            player.move(-1,0);
+                        break;
+                    case SDLK_UP:
+                        if (!map.is_wall(player.x, player.y - 1))
+                            player.move(0,-1);
+                        break;
                 }
         }
     }
