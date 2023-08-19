@@ -35,17 +35,17 @@ Engine::Engine() {
 
     g_context = tcod::Context(params);
 
-    player = new Actor(40,25,"@",TCOD_white);
-    actors.push_back(player);
+    actors.push_back(Actor(40,25,"@",TCOD_white));
     // map = new Map(80,45);
 }
 
 Engine::~Engine() {
     // actors is a pointer so we kinda just delete all the actors' pointers before clearing
-    for (Actor* a : actors) {
-        delete a;
-    }
     actors.clear();
+}
+
+Actor& Engine::get_player() {
+    return actors[0];
 }
 
 /// @brief Renders all actors
@@ -53,8 +53,8 @@ void Engine::render() {
     // main rendering func
     // literally just loops thru all actors
     g_console.clear();
-    for (Actor* a : actors) {
-        tcod::print(g_console, {a->x, a->y}, a->character, a->color, std::nullopt);
+    for (auto &a : actors) {
+        tcod::print(g_console, {a.x, a.y}, a.character, a.color, std::nullopt);
     }
     g_context.present(g_console);
 }
@@ -62,8 +62,8 @@ void Engine::render() {
 /// @brief Updates all actors
 void Engine::update() {
     // loops thru all actors and updates them
-    for (Actor* a : actors) {
-        a->update(g_console, g_context);
+    for (auto &a : actors) {
+        a.update(g_console, g_context);
     }
 }
 
@@ -84,11 +84,12 @@ void Engine::main_loop() {
             case SDL_KEYDOWN:
                 TCOD_mouse_t key;
                 tcod::sdl2::process_event(event, key);  // Convert a SDL key to a libtcod key event, to help port older code.
+                Actor& player = get_player();
                 switch (event.key.keysym.sym) {
-                    case SDLK_DOWN: player->move(0,1); break;
-                    case SDLK_RIGHT: player->move(1,0); break;
-                    case SDLK_LEFT: player->move(-1,0); break;
-                    case SDLK_UP: player->move(0,-1); break;
+                    case SDLK_DOWN: player.move(0,1); break;
+                    case SDLK_RIGHT: player.move(1,0); break;
+                    case SDLK_LEFT: player.move(-1,0); break;
+                    case SDLK_UP: player.move(0,-1); break;
                 }
         }
     }
