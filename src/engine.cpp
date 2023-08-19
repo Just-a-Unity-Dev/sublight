@@ -36,6 +36,8 @@ Engine::Engine() : map(80,45) {
     g_context = tcod::Context(params);
 
     actors.push_back(Actor(40,25,"@",tcod::ColorRGB{255,255,255}));
+
+    map.generate_dungeon();
 }
 
 Engine::~Engine() {
@@ -90,19 +92,19 @@ void Engine::main_loop() {
                 Actor& player = get_player();
                 switch (event.key.keysym.sym) {
                     case SDLK_DOWN:
-                        if (!map.is_wall(player.x, player.y + 1))
+                        if (map.get_tile(player.x, player.y + 1).can_walk)
                             player.move(0,1);
                         break;
                     case SDLK_RIGHT:
-                        if (!map.is_wall(player.x + 1, player.y))
+                        if (map.get_tile(player.x + 1, player.y).can_walk)
                             player.move(1,0);
                         break;
                     case SDLK_LEFT:
-                        if (!map.is_wall(player.x - 1, player.y))
+                        if (map.get_tile(player.x - 1, player.y).can_walk)
                             player.move(-1,0);
                         break;
                     case SDLK_UP:
-                        if (!map.is_wall(player.x, player.y - 1))
+                        if (map.get_tile(player.x, player.y - 1).can_walk)
                             player.move(0,-1);
                         break;
                 }
