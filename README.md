@@ -1,6 +1,6 @@
 # sublight
 
-A game about salvaging derelict structures and micromanaging a small starship.
+A game about salvaging derelict structures and micromanaging a small starship. Also an excuse for me to learn C++ and LibTCOD.
 
 ## setting
 
