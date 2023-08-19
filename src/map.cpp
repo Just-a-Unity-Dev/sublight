@@ -43,6 +43,10 @@ bool Map::is_wall(int x, int y) const {
     return !tiles[x+y*width].can_walk;
 }
 
+bool Map::is_in_bounds(int x, int y) const {
+    return 0 <= x < width && 0 <= y < height;
+}
+
 void Map::set_tile(
     int x,
     int y,

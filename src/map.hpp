@@ -21,11 +21,14 @@ class Map {
         int width, height;
 
         Map(int width, int height);
+        bool is_in_bounds(int x, int y) const;
         bool is_wall(int x, int y) const;
+
         void render(tcod::Console& g_console);
         void dig(int x1, int y1, int x2, int y2);
         void dig_room(RectangularRoom &room);
         void generate_dungeon(Actor& player);
+
         Tile& get_tile(int x, int y);
         std::vector<Point2> tunnel_between(RectangularRoom &room1, RectangularRoom &room2);
     protected:

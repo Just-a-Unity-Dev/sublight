@@ -90,21 +90,34 @@ void Engine::main_loop() {
                 TCOD_mouse_t key;
                 tcod::sdl2::process_event(event, key);  // Convert a SDL key to a libtcod key event, to help port older code.
                 Actor& player = get_player();
+                int x, y = 0;
                 switch (event.key.keysym.sym) {
                     case SDLK_DOWN:
-                        if (map.get_tile(player.x, player.y + 1).can_walk)
+                        x = player.x;
+                        y = player.y + 1;
+
+                        if (map.get_tile(x, y).can_walk && map.is_in_bounds(x, y))
                             player.move(0,1);
                         break;
                     case SDLK_RIGHT:
-                        if (map.get_tile(player.x + 1, player.y).can_walk)
+                        x = player.x + 1;
+                        y = player.y;
+
+                        if (map.get_tile(x, y).can_walk && map.is_in_bounds(x, y))
                             player.move(1,0);
                         break;
                     case SDLK_LEFT:
-                        if (map.get_tile(player.x - 1, player.y).can_walk)
+                        x = player.x - 1;
+                        y = player.y;
+
+                        if (map.get_tile(x, y).can_walk && map.is_in_bounds(x, y))
                             player.move(-1,0);
                         break;
                     case SDLK_UP:
-                        if (map.get_tile(player.x, player.y - 1).can_walk)
+                        x = player.x;
+                        y = player.y - 1;
+
+                        if (map.get_tile(x, y).can_walk && map.is_in_bounds(x, y))
                             player.move(0,-1);
                         break;
                 }
