@@ -15,7 +15,7 @@ auto get_data_dir() -> std::filesystem::path {
     return root_directory / "assets";
 };
 
-Engine::Engine() {
+Engine::Engine() : map(80,45) {
     // set up parameters for console emulator
 
     auto params = TCOD_ContextParams{};
@@ -36,7 +36,6 @@ Engine::Engine() {
     g_context = tcod::Context(params);
 
     actors.push_back(Actor(40,25,"@",TCOD_white));
-    // map = new Map(80,45);
 }
 
 Engine::~Engine() {
@@ -53,9 +52,13 @@ void Engine::render() {
     // main rendering func
     // literally just loops thru all actors
     g_console.clear();
+
+    map.render(g_console);
+
     for (auto &a : actors) {
         tcod::print(g_console, {a.x, a.y}, a.character, a.color, std::nullopt);
     }
+
     g_context.present(g_console);
 }
 
@@ -86,10 +89,10 @@ void Engine::main_loop() {
                 tcod::sdl2::process_event(event, key);  // Convert a SDL key to a libtcod key event, to help port older code.
                 Actor& player = get_player();
                 switch (event.key.keysym.sym) {
-                    case SDLK_DOWN: player.move(0,1); break;
-                    case SDLK_RIGHT: player.move(1,0); break;
-                    case SDLK_LEFT: player.move(-1,0); break;
-                    case SDLK_UP: player.move(0,-1); break;
+                    case SDLK_DOWN: player.move_with_collision(0,1,map); break;
+                    case SDLK_RIGHT: player.move_with_collision(1,0,map); break;
+                    case SDLK_LEFT: player.move_with_collision(-1,0,map); break;
+                    case SDLK_UP: player.move_with_collision(0,-1,map); break;
                 }
         }
     }

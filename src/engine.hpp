@@ -1,12 +1,16 @@
+#ifndef _TOOLS_H_
+#define _TOOLS_H_
+
 #pragma once
 
 #include <libtcod.hpp>
 #include "actor.hpp"
+#include "map.hpp"
 
 /// Main engine struct that holds actors, and handles rendering/updating.
 struct Engine {
     std::vector<Actor> actors;
-    // Map *map;
+    Map map;
 
     Engine();
     ~Engine();
@@ -20,3 +24,4 @@ struct Engine {
 };
 
 extern Engine engine;
+#endif

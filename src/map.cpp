@@ -6,10 +6,6 @@ Map::Map(int width, int height) : width(width), height(height), tiles(width*heig
     setWall(50,22);
 };
 
-Map::~Map() {
-    tiles.clear();
-}
-
 bool Map::isWall(int x, int y) const {
     return !tiles[x+y*width].canWalk;
 }
@@ -25,7 +21,7 @@ void Map::render(tcod::Console& g_console) const {
 
     for (int x = 0; x < width; x++) {
         for (int y = 0; y < height; y++) {
-            tcod::print(g_console, {x, y}, "█", isWall(x, y) ? darkWall : darkGround, std::nullopt);
+            tcod::print(g_console, {x, y}, isWall(x, y) ? "▓" : ".", isWall(x, y) ? darkWall : darkGround, std::nullopt);
         }
     }
 }
