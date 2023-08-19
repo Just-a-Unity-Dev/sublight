@@ -69,18 +69,10 @@ void Engine::main_loop() {
                 TCOD_mouse_t key;
                 tcod::sdl2::process_event(event, key);  // Convert a SDL key to a libtcod key event, to help port older code.
                 switch (event.key.keysym.sym) {
-                    case SDLK_DOWN:
-                        player->y++;
-                        break;
-                    case SDLK_RIGHT:
-                        player->x++;
-                        break;
-                    case SDLK_LEFT:
-                        player->x--;
-                        break;
-                    case SDLK_UP:
-                        player->y--;
-                        break;
+                    case SDLK_DOWN: player->y++; break;
+                    case SDLK_RIGHT: player->x++; break;
+                    case SDLK_LEFT: player->x--; break;
+                    case SDLK_UP: player->y--; break;
                 }
         }
     }
