@@ -85,7 +85,7 @@ jobs:
         run: |
           mkdir -p dist/${{ env.archive-name }}
           cp "${{ env.CMAKE_BUILD_DIR }}/bin"/* dist/${{ env.archive-name }}
-          cp -R data dist/${{ env.archive-name }}
+          cp -R assets dist/${{ env.archive-name }}
       - name: Show contents of the dist directory
         run: find dist/${{ env.archive-name }}
       # Zip the distribution folder, using the platform appropriate tools.
