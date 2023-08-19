@@ -32,5 +32,14 @@ class Map {
         friend class BspListener;
 
         void set_can_walk(int x, int y, bool can_walk);
-        void set_tile(int x, int y, Tile new_tile);
+        void set_tile(
+            int x,
+            int y,
+            bool can_walk,
+            std::string_view character,
+            TCOD_color_t foreground,
+            TCOD_color_t background,
+            TCOD_color_t dark,
+            bool transparent
+        );
 };

@@ -34,12 +34,26 @@ bool Map::is_wall(int x, int y) const {
     return !tiles[x+y*width].can_walk;
 }
 
-void Map::set_tile(int x, int y, Tile new_tile) {
-    tiles[x+y*width] = new_tile;
-}
+void Map::set_tile(
+    int x,
+    int y,
+    bool can_walk,
+    std::string_view character,
+    TCOD_color_t foreground,
+    TCOD_color_t background,
+    TCOD_color_t dark,
+    bool transparent
+) {
+    // due to sins, tiledefs only contain data - the tile is reconstructed on run
 
-void Map::set_can_walk(int x, int y, bool can_walk) {
-    tiles[x+y*width].can_walk = can_walk;
+    Tile assigned_tile;
+    assigned_tile.background = background;
+    assigned_tile.can_walk = can_walk;
+    assigned_tile.character = character;
+    assigned_tile.dark = dark;
+    assigned_tile.foreground = foreground;
+
+    tiles[x+y*width] = assigned_tile;
 }
 
 Tile& Map::get_tile(int x, int y) {
@@ -61,7 +75,8 @@ void Map::dig(int x1, int y1, int x2, int y2) {
 
     for (int tile_x=x1; tile_x <= x2; tile_x++) {
         for (int tile_y=y1; tile_y <= y2; tile_y++) {
-            set_can_walk(tile_x, tile_y, true);
+            tiledefs::Floor floor = tiledefs::Floor();
+            set_tile(tile_x, tile_y, floor.can_walk, floor.character, floor.foreground, floor.background, floor.dark, floor.transparent);
         }
     }
 }
@@ -71,7 +86,8 @@ void Map::dig_room(RectangularRoom &room) {
     {
         for (int y = room.y1 + 1; y < room.y2; ++y)
         {
-            set_can_walk(x, y, true);
+            tiledefs::Floor floor = tiledefs::Floor();
+            set_tile(x, y, floor.can_walk, floor.character, floor.foreground, floor.background, floor.dark, floor.transparent);
         }
     }
 }
@@ -121,7 +137,8 @@ void Map::generate_dungeon() {
     dig_room(room2);
 
     for (auto point : tunnel_between(room, room2)) {
-        set_can_walk(point.x, point.y, true);
+        tiledefs::Floor floor = tiledefs::Floor();
+        set_tile(point.x, point.y, floor.can_walk, floor.character, floor.foreground, floor.background, floor.dark, floor.transparent);
     }
 }
 
