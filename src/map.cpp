@@ -3,11 +3,11 @@
 #include "map.hpp"
 #include "point2.hpp"
 
-static const int ROOM_MAX_SIZE = 12;
+static const int ROOM_MAX_SIZE = 10;
 static const int ROOM_MIN_SIZE = 6;
+static const int ROOM_MAX_AMOUNT = 15;
 
 Map::Map(int width, int height) : width(width), height(height), tiles(width*height) {};
-
 
 Point2 RectangularRoom::center() const {
     int center_x = int((x1 + x2) / 2);
@@ -28,6 +28,15 @@ std::vector<Point2> RectangularRoom::inner(RectangularRoom &room) const {
     }
 
     return inner;
+}
+
+bool RectangularRoom::intersects(RectangularRoom &other) const {
+    return (
+        x1 <= other.x2 &&
+        x2 >= other.x1 &&
+        y1 <= other.y2 &&
+        y2 >= other.x1
+    );
 }
 
 bool Map::is_wall(int x, int y) const {
@@ -114,14 +123,43 @@ std::vector<Point2> Map::tunnel_between(RectangularRoom &room1, RectangularRoom 
     return iterator;
 }
 
-void Map::generate_dungeon() {
-    RectangularRoom room = RectangularRoom(10, 10, 20, 20);
-    RectangularRoom room2 = RectangularRoom(35, 10, 20, 20);
-    dig_room(room);
-    dig_room(room2);
+/// Generates a dungeon.
+void Map::generate_dungeon(Actor& player) {
+    std::vector<RectangularRoom> rooms;
+    TCODRandom* random = TCODRandom::getInstance();
 
-    for (auto point : tunnel_between(room, room2)) {
-        set_tile(point.x, point.y, tiledefs::floor);
+    for (int i = 0; i < ROOM_MAX_AMOUNT; ++i) {
+        int room_width = random->getInt(ROOM_MIN_SIZE, ROOM_MAX_SIZE);
+        int room_height = random->getInt(ROOM_MIN_SIZE, ROOM_MAX_SIZE);
+
+        int room_x = random->getInt(0, width - room_width - 1);
+        int room_y = random->getInt(0, height - room_height - 1);
+
+        RectangularRoom room = RectangularRoom(room_x, room_y, room_width, room_height);
+
+        bool intersected = false;
+        for (auto other : rooms) {
+            if (room.intersects(other)) {
+                // intersects with another room, skip
+                intersected = true;
+                break;
+            }
+        }
+        if (intersected)
+            continue;
+
+        dig_room(room);
+
+        if (rooms.size() == 0) {
+            player.x = room.center().x;
+            player.y = room.center().y;
+        } else {
+            for (auto point : tunnel_between(room, rooms.back())) {
+                set_tile(point.x, point.y, tiledefs::floor);
+            }
+        }
+
+        rooms.push_back(room);
     }
 }
 

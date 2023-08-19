@@ -37,7 +37,7 @@ Engine::Engine() : map(80,45) {
 
     actors.push_back(Actor(40,25,"@",tcod::ColorRGB{255,255,255}));
 
-    map.generate_dungeon();
+    map.generate_dungeon(get_player());
 }
 
 Engine::~Engine() {

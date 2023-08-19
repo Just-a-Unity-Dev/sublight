@@ -13,6 +13,7 @@ struct RectangularRoom {
     RectangularRoom(int x, int y, int width, int height) : x1(x), x2(x + width), y1(y), y2(y + height) {};
     Point2 center() const;
     std::vector<Point2> inner(RectangularRoom &room) const;
+    bool intersects(RectangularRoom &other) const;
 };
 
 class Map {
@@ -24,7 +25,7 @@ class Map {
         void render(tcod::Console& g_console);
         void dig(int x1, int y1, int x2, int y2);
         void dig_room(RectangularRoom &room);
-        void generate_dungeon();
+        void generate_dungeon(Actor& player);
         Tile& get_tile(int x, int y);
         std::vector<Point2> tunnel_between(RectangularRoom &room1, RectangularRoom &room2);
     protected:
