@@ -16,6 +16,8 @@ auto get_data_dir() -> std::filesystem::path {
 };
 
 Engine::Engine() {
+    // set up parameters for console emulator
+
     auto params = TCOD_ContextParams{};
     params.tcod_version = TCOD_COMPILEDVERSION;
     params.renderer_type = TCOD_RENDERER_SDL2;
@@ -26,6 +28,7 @@ Engine::Engine() {
     auto tileset = tcod::load_tilesheet(get_data_dir() / "dejavu16x16_gs_tc.png", {32, 8}, tcod::CHARMAP_TCOD);
     params.tileset = tileset.get();
 
+    // set up the actual engine variables
     g_console = tcod::Console{80, 40};
 
     params.console = g_console.get();
@@ -38,12 +41,14 @@ Engine::Engine() {
 }
 
 Engine::~Engine() {
+    // actors is a pointer so we kinda just delete all the actors' pointers before clearing
     for (Actor* a : actors) {
         delete a;
     }
     actors.clear();
 }
 
+/// @brief Renders all actors
 void Engine::render() {
     // main rendering func
     // literally just loops thru all actors
@@ -54,9 +59,20 @@ void Engine::render() {
     g_context.present(g_console);
 }
 
+/// @brief Updates all actors
+void Engine::update() {
+    // loops thru all actors and updates them
+    for (Actor* a : actors) {
+        a->update(g_console, g_context);
+    }
+}
+
 void Engine::main_loop() {
     // begin render loop
     render();
+
+    // update the tah
+    update();
 
     // handle input
     SDL_Event event;
@@ -69,10 +85,10 @@ void Engine::main_loop() {
                 TCOD_mouse_t key;
                 tcod::sdl2::process_event(event, key);  // Convert a SDL key to a libtcod key event, to help port older code.
                 switch (event.key.keysym.sym) {
-                    case SDLK_DOWN: player->y++; break;
-                    case SDLK_RIGHT: player->x++; break;
-                    case SDLK_LEFT: player->x--; break;
-                    case SDLK_UP: player->y--; break;
+                    case SDLK_DOWN: player->move(0,1); break;
+                    case SDLK_RIGHT: player->move(1,0); break;
+                    case SDLK_LEFT: player->move(-1,0); break;
+                    case SDLK_UP: player->move(0,-1); break;
                 }
         }
     }
