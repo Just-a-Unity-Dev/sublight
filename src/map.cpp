@@ -37,23 +37,9 @@ bool Map::is_wall(int x, int y) const {
 void Map::set_tile(
     int x,
     int y,
-    bool can_walk,
-    std::string_view character,
-    TCOD_color_t foreground,
-    TCOD_color_t background,
-    TCOD_color_t dark,
-    bool transparent
+    Tile tile
 ) {
-    // due to sins, tiledefs only contain data - the tile is reconstructed on run
-
-    Tile assigned_tile;
-    assigned_tile.background = background;
-    assigned_tile.can_walk = can_walk;
-    assigned_tile.character = character;
-    assigned_tile.dark = dark;
-    assigned_tile.foreground = foreground;
-
-    tiles[x+y*width] = assigned_tile;
+    tiles[x+y*width] = tile;
 }
 
 Tile& Map::get_tile(int x, int y) {
@@ -75,8 +61,7 @@ void Map::dig(int x1, int y1, int x2, int y2) {
 
     for (int tile_x=x1; tile_x <= x2; tile_x++) {
         for (int tile_y=y1; tile_y <= y2; tile_y++) {
-            tiledefs::Floor floor = tiledefs::Floor();
-            set_tile(tile_x, tile_y, floor.can_walk, floor.character, floor.foreground, floor.background, floor.dark, floor.transparent);
+            set_tile(tile_x, tile_y, tiledefs::floor);
         }
     }
 }
@@ -86,8 +71,7 @@ void Map::dig_room(RectangularRoom &room) {
     {
         for (int y = room.y1 + 1; y < room.y2; ++y)
         {
-            tiledefs::Floor floor = tiledefs::Floor();
-            set_tile(x, y, floor.can_walk, floor.character, floor.foreground, floor.background, floor.dark, floor.transparent);
+            set_tile(x, y, tiledefs::floor);
         }
     }
 }
@@ -137,23 +121,21 @@ void Map::generate_dungeon() {
     dig_room(room2);
 
     for (auto point : tunnel_between(room, room2)) {
-        tiledefs::Floor floor = tiledefs::Floor();
-        set_tile(point.x, point.y, floor.can_walk, floor.character, floor.foreground, floor.background, floor.dark, floor.transparent);
+        set_tile(point.x, point.y, tiledefs::floor);
     }
 }
 
-void Map::render(tcod::Console& g_console) const {
-    static const TCOD_color_t darkWall = TCOD_color_RGB(0,0,100);
-    static const TCOD_color_t darkGround = TCOD_color_RGB(50,50,150);
-
+void Map::render(tcod::Console& g_console) {
     for (int x = 0; x < width; x++) {
         for (int y = 0; y < height; y++) {
+            Tile tile = get_tile(x,y);
+
             tcod::print(
                 g_console,
                 {x, y},
-                is_wall(x, y) ? "▓" : ".",
-                is_wall(x, y) ? darkWall : darkGround,
-                std::nullopt
+                tile.character,
+                tile.foreground,
+                tile.background
             );
         }
     }

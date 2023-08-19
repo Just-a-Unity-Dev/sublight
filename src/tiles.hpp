@@ -11,12 +11,7 @@ struct Tile {
 };
 
 namespace tiledefs {
-    struct Floor {
-        bool can_walk = true;
-        std::string_view character = ".";
-        TCOD_color_t foreground = tcod::ColorRGB{255,255,255};
-        TCOD_color_t background = tcod::ColorRGB{255,255,255};
-        TCOD_color_t dark = tcod::ColorRGB{125,125,125};
-        bool transparent = true;
+    inline const Tile floor {
+        true, ".", tcod::ColorRGB{35,35,35}, tcod::ColorRGB{25,25,25}, tcod::ColorRGB{15,15,15}, true
     };
-}
+};

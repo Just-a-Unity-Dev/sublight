@@ -21,7 +21,7 @@ class Map {
 
         Map(int width, int height);
         bool is_wall(int x, int y) const;
-        void render(tcod::Console& g_console) const;
+        void render(tcod::Console& g_console);
         void dig(int x1, int y1, int x2, int y2);
         void dig_room(RectangularRoom &room);
         void generate_dungeon();
@@ -35,11 +35,6 @@ class Map {
         void set_tile(
             int x,
             int y,
-            bool can_walk,
-            std::string_view character,
-            TCOD_color_t foreground,
-            TCOD_color_t background,
-            TCOD_color_t dark,
-            bool transparent
+            Tile tile
         );
 };
