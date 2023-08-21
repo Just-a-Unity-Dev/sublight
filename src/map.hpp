@@ -21,19 +21,24 @@ class Map {
         int width, height;
 
         Map(int width, int height);
+        ~Map();
         bool is_in_bounds(int x, int y) const;
         bool is_wall(int x, int y) const;
+        bool is_in_fov(int x, int y) const;
 
         void render(tcod::Console& g_console);
         void dig(int x1, int y1, int x2, int y2);
         void dig_room(RectangularRoom &room);
         void generate_dungeon(Actor& player);
 
+        void compute_fov(int x, int y, int radius);
+
         Tile& get_tile(int x, int y);
         std::vector<Point2> tunnel_between(RectangularRoom &room1, RectangularRoom &room2);
     protected:
         std::vector<Tile> tiles;
         friend class BspListener;
+        TCODMap *map;
 
         void set_can_walk(int x, int y, bool can_walk);
         void set_tile(

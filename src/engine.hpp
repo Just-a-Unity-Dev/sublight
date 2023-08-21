@@ -15,6 +15,8 @@ struct Engine {
     void render();
     void update();
     Actor& get_player();
+    int fov_radius;
+    bool compute_fov;
 
     tcod::Console g_console;
     tcod::Context g_context;

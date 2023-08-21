@@ -15,7 +15,7 @@ auto get_data_dir() -> std::filesystem::path {
     return root_directory / "assets";
 };
 
-Engine::Engine() : map(80,45) {
+Engine::Engine() : map(80,45), compute_fov(true), fov_radius(10) {
     // set up parameters for console emulator
 
     auto params = TCOD_ContextParams{};
@@ -58,7 +58,8 @@ void Engine::render() {
     map.render(g_console);
 
     for (auto &a : actors) {
-        tcod::print(g_console, {a.x, a.y}, a.character, a.color, std::nullopt);
+        if (map.is_in_fov(a.x, a.y))
+            tcod::print(g_console, {a.x, a.y}, a.character, a.color, std::nullopt);
     }
 
     g_context.present(g_console);
@@ -73,12 +74,9 @@ void Engine::update() {
 }
 
 void Engine::main_loop() {
-    // begin render loop
-    render();
-
-    // update the tah
-    update();
-
+    // get player actor
+    Actor& player = get_player();
+    
     // handle input
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
@@ -89,38 +87,55 @@ void Engine::main_loop() {
             case SDL_KEYDOWN:
                 TCOD_mouse_t key;
                 tcod::sdl2::process_event(event, key);  // Convert a SDL key to a libtcod key event, to help port older code.
-                Actor& player = get_player();
                 int x, y = 0;
                 switch (event.key.keysym.sym) {
                     case SDLK_DOWN:
                         x = player.x;
                         y = player.y + 1;
 
-                        if (map.get_tile(x, y).can_walk && map.is_in_bounds(x, y))
+                        if (map.get_tile(x, y).can_walk && map.is_in_bounds(x, y)){
                             player.move(0,1);
+                            compute_fov = true;
+                        }
                         break;
                     case SDLK_RIGHT:
                         x = player.x + 1;
                         y = player.y;
 
-                        if (map.get_tile(x, y).can_walk && map.is_in_bounds(x, y))
+                        if (map.get_tile(x, y).can_walk && map.is_in_bounds(x, y)){
                             player.move(1,0);
+                            compute_fov = true;
+                        }
                         break;
                     case SDLK_LEFT:
                         x = player.x - 1;
                         y = player.y;
 
-                        if (map.get_tile(x, y).can_walk && map.is_in_bounds(x, y))
+                        if (map.get_tile(x, y).can_walk && map.is_in_bounds(x, y)){
                             player.move(-1,0);
+                            compute_fov = true;
+                        }
                         break;
                     case SDLK_UP:
                         x = player.x;
                         y = player.y - 1;
 
-                        if (map.get_tile(x, y).can_walk && map.is_in_bounds(x, y))
+                        if (map.get_tile(x, y).can_walk && map.is_in_bounds(x, y)){
                             player.move(0,-1);
+                            compute_fov = true;
+                        }
                         break;
                 }
         }
     }
+    if (compute_fov) {
+        map.compute_fov(player.x, player.y, fov_radius);
+        compute_fov = false;
+    }
+
+    // begin render loop
+    render();
+
+    // update the tah
+    update();
 }

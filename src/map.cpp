@@ -7,7 +7,13 @@ static const int ROOM_MAX_SIZE = 10;
 static const int ROOM_MIN_SIZE = 6;
 static const int ROOM_MAX_AMOUNT = 15;
 
-Map::Map(int width, int height) : width(width), height(height), tiles(width*height) {};
+Map::Map(int width, int height) : width(width), height(height), tiles(width*height) {
+    map = new TCODMap(width, height);
+};
+
+Map::~Map() {
+    delete map;
+}
 
 Point2 RectangularRoom::center() const {
     int center_x = int((x1 + x2) / 2);
@@ -43,6 +49,10 @@ bool Map::is_wall(int x, int y) const {
     return !tiles[x+y*width].can_walk;
 }
 
+bool Map::is_in_fov(int x, int y) const {
+    return map->isInFov(x, y);
+}
+
 bool Map::is_in_bounds(int x, int y) const {
     return 0 <= x < width && 0 <= y < height;
 }
@@ -53,30 +63,11 @@ void Map::set_tile(
     Tile tile
 ) {
     tiles[x+y*width] = tile;
+    map->setProperties(x,y,tile.transparent,tile.can_walk);
 }
 
 Tile& Map::get_tile(int x, int y) {
     return tiles[x+y*width];
-}
-
-void Map::dig(int x1, int y1, int x2, int y2) {
-    if ( x2 < x1 ) {
-        int tmp=x2;
-        x2=x1;
-        x1=tmp;
-    }
-
-    if ( y2 < y1 ) {
-        int tmp=y2;
-        y2=y1;
-        y1=tmp;
-    }
-
-    for (int tile_x=x1; tile_x <= x2; tile_x++) {
-        for (int tile_y=y1; tile_y <= y2; tile_y++) {
-            set_tile(tile_x, tile_y, tiledefs::floor);
-        }
-    }
 }
 
 void Map::dig_room(RectangularRoom &room) {
@@ -87,6 +78,10 @@ void Map::dig_room(RectangularRoom &room) {
             set_tile(x, y, tiledefs::floor);
         }
     }
+}
+
+void Map::compute_fov(int x, int y, int radius) {
+    map->computeFov(x, y, radius);
 }
 
 std::vector<Point2> Map::tunnel_between(RectangularRoom &room1, RectangularRoom &room2) {
@@ -170,15 +165,17 @@ void Map::generate_dungeon(Actor& player) {
 void Map::render(tcod::Console& g_console) {
     for (int x = 0; x < width; x++) {
         for (int y = 0; y < height; y++) {
-            Tile tile = get_tile(x,y);
+            if (is_in_fov(x, y)) {
+                Tile tile = get_tile(x,y);
 
-            tcod::print(
-                g_console,
-                {x, y},
-                tile.character,
-                tile.foreground,
-                tile.background
-            );
+                tcod::print(
+                    g_console,
+                    {x, y},
+                    tile.character,
+                    tile.foreground,
+                    tile.background
+                );
+            }
         }
     }
 }
