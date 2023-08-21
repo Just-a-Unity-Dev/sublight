@@ -1,6 +1,6 @@
 #include <SDL.h>
 #include "engine.hpp"
-#include "actor.hpp"
+#include "actors.hpp"
 
 static const int ROOM_MAX_SIZE = 10;
 static const int ROOM_MIN_SIZE = 6;
@@ -40,7 +40,7 @@ Engine::Engine() : map(80,45), compute_fov(true), fov_radius(10) {
 
     g_context = tcod::Context(params);
 
-    map.actors.push_back(Actor(40,25,"@",tcod::ColorRGB{255,255,255}));
+    map.actors.push_back(actordefs::player);
 
     map.generate_dungeon(get_player(), ROOM_MAX_AMOUNT, ROOM_MIN_SIZE, ROOM_MAX_SIZE, MAX_MONSTERS_PER_ROOM);
 }

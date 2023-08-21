@@ -1,5 +1,6 @@
 #include <libtcod.hpp>
 #include "actor.hpp"
+#include "actors.hpp"
 #include "map.hpp"
 #include "point2.hpp"
 
@@ -51,7 +52,10 @@ void Map::place_entities(RectangularRoom& room, int max_monsters) {
 
         if (is_obstructed(x, y)) {
             // spawn a monster here
-            actors.push_back(Actor(x, y, "@", TCOD_ColorRGB{255,255,0}));
+            Actor monster = actordefs::human;
+            monster.x = x;
+            monster.y = y;
+            actors.push_back(monster);
         }
     }
 }
@@ -76,7 +80,7 @@ bool Map::is_obstructed(int x, int y) const {
         return false;
     }
     for (auto actor : actors) {
-        if (actor.x == x && actor.y == y) {
+        if (actor.x == x && actor.y == y && actor.blocks_movement) {
             return false;
         }
     }
