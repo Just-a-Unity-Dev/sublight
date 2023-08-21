@@ -1,5 +1,9 @@
 #pragma once
 
+class AI {
+    void update();
+};
+
 class Actor {
     public:
         const char* name;
