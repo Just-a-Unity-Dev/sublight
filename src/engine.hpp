@@ -7,8 +7,8 @@
 struct InputHandler {
     void move_action(int dx, int dy);
     void attack_action(int dx, int dy);
-    void toggle_combat_action();
     void bump_action(int dx, int dy);
+    void wait_action();
 };
 
 /// Main engine struct that holds actors, and handles rendering/updating.
@@ -21,9 +21,10 @@ struct Engine {
     void render();
     void update();
 
+    void handle_npc_turns();
+
     int fov_radius;
     bool compute_fov;
-    bool combat_mode;
 
     InputHandler handler;
     Actor& get_player();

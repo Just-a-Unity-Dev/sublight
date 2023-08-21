@@ -75,6 +75,16 @@ void Engine::update() {
     }
 }
 
+/// @brief Loops through all NPCs and handles their turn.
+void Engine::handle_npc_turns() {
+    Actor& player = get_player();
+    for (auto actor : map.actors) {
+        if (actor.name != player.name) {
+            printf("The %s ponders when it will be their turn.", actor.name);
+        }
+    }
+}
+
 void InputHandler::bump_action(int dx, int dy) {
     Actor& player = engine.get_player();
 
@@ -83,6 +93,13 @@ void InputHandler::bump_action(int dx, int dy) {
     } else {
         move_action(dx, dy);
     }
+
+    // handle the turns of enemies
+    engine.handle_npc_turns();
+}
+
+void InputHandler::wait_action() {
+    engine.handle_npc_turns();
 }
 
 void InputHandler::move_action(int dx, int dy) {
@@ -97,15 +114,10 @@ void InputHandler::attack_action(int dx, int dy) {
     Actor& player = engine.get_player();
     Actor attacked = engine.map.get_blocking_actor_at_position(player.x + dx, player.y + dy);
 
-    printf(attacked.name);
     if (attacked.x == -1) {
         // nothing
         return;
     }
-}
-
-void InputHandler::toggle_combat_action() {
-    engine.combat_mode = !engine.combat_mode;
 }
 
 void Engine::main_loop() {
@@ -140,16 +152,16 @@ void Engine::main_loop() {
                         engine.handler.bump_action(0, -1);
                         compute_fov = true;
                         break;
-                    case SDLK_t:
-                        engine.handler.toggle_combat_action();
+                    case SDLK_PERIOD:
+                        engine.handler.wait_action();
                         compute_fov = true;
                         break;
                 }
         }
-    }
-    if (compute_fov) {
-        map.compute_fov(player.x, player.y, fov_radius);
-        compute_fov = false;
+        if (compute_fov) {
+            map.compute_fov(player.x, player.y, fov_radius);
+            compute_fov = false;
+        }
     }
 
     // begin render loop
