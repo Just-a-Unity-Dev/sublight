@@ -3,10 +3,6 @@
 #include "map.hpp"
 #include "point2.hpp"
 
-static const int ROOM_MAX_SIZE = 10;
-static const int ROOM_MIN_SIZE = 6;
-static const int ROOM_MAX_AMOUNT = 15;
-
 Map::Map(int width, int height) : width(width), height(height), tiles(width*height) {
     map = new TCODMap(width, height);
 };
@@ -45,6 +41,21 @@ bool RectangularRoom::intersects(RectangularRoom &other) const {
     );
 }
 
+void Map::place_entities(RectangularRoom& room, int max_monsters) {
+    TCODRandom* random = TCODRandom::getInstance();
+    int monster_amount = random->getInt(0, max_monsters);
+
+    for (int i = 0; i < monster_amount; ++i) {
+        int x = random->getInt(room.x1 + 1, room.x2 - 1);
+        int y = random->getInt(room.y1 + 1, room.y2 - 1);
+
+        if (is_obstructed(x, y)) {
+            // spawn a monster here
+            actors.push_back(Actor(x, y, "@", TCOD_ColorRGB{255,255,0}));
+        }
+    }
+}
+
 bool Map::is_wall(int x, int y) const {
     return !tiles[x+y*width].can_walk;
 }
@@ -55,6 +66,21 @@ bool Map::is_in_fov(int x, int y) const {
 
 bool Map::is_in_bounds(int x, int y) const {
     return 0 <= x < width && 0 <= y < height;
+}
+
+bool Map::is_obstructed(int x, int y) const {
+    if (is_wall(x, y)) {
+        return false;
+    }
+    if (!is_in_bounds(x, y)) {
+        return false;
+    }
+    for (auto actor : actors) {
+        if (actor.x == x && actor.y == y) {
+            return false;
+        }
+    }
+    return true;
 }
 
 void Map::set_tile(
@@ -123,13 +149,13 @@ std::vector<Point2> Map::tunnel_between(RectangularRoom &room1, RectangularRoom 
 }
 
 /// Generates a dungeon.
-void Map::generate_dungeon(Actor& player) {
+void Map::generate_dungeon(Actor& player, int room_max_amount, int room_min_size, int room_max_size, int max_monsters_per_room) {
     std::vector<RectangularRoom> rooms;
     TCODRandom* random = TCODRandom::getInstance();
 
-    for (int i = 0; i < ROOM_MAX_AMOUNT; ++i) {
-        int room_width = random->getInt(ROOM_MIN_SIZE, ROOM_MAX_SIZE);
-        int room_height = random->getInt(ROOM_MIN_SIZE, ROOM_MAX_SIZE);
+    for (int i = 0; i < room_max_amount; ++i) {
+        int room_width = random->getInt(room_min_size, room_max_size);
+        int room_height = random->getInt(room_min_size, room_max_size);
 
         int room_x = random->getInt(0, width - room_width - 1);
         int room_y = random->getInt(0, height - room_height - 1);
@@ -158,6 +184,8 @@ void Map::generate_dungeon(Actor& player) {
             }
         }
 
+        place_entities(room, max_monsters_per_room);
+
         rooms.push_back(room);
     }
 }
@@ -177,5 +205,10 @@ void Map::render(tcod::Console& g_console) {
                 );
             }
         }
+    }
+
+    for (auto &a : actors) {
+        if (is_in_fov(a.x, a.y))
+            tcod::print(g_console, {a.x, a.y}, a.character, a.color, std::nullopt);
     }
 }

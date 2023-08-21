@@ -6,7 +6,6 @@
 
 /// Main engine struct that holds actors, and handles rendering/updating.
 struct Engine {
-    std::vector<Actor> actors;
     Map map;
 
     Engine();

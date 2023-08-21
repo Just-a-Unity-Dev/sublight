@@ -18,18 +18,22 @@ struct RectangularRoom {
 
 class Map {
     public:
+        std::vector<Actor> actors;
         int width, height;
 
         Map(int width, int height);
         ~Map();
         bool is_in_bounds(int x, int y) const;
         bool is_wall(int x, int y) const;
+        bool is_obstructed(int x, int y) const;
         bool is_in_fov(int x, int y) const;
+
+        void place_entities(RectangularRoom& room, int max_monsters);
 
         void render(tcod::Console& g_console);
         void dig(int x1, int y1, int x2, int y2);
         void dig_room(RectangularRoom &room);
-        void generate_dungeon(Actor& player);
+        void generate_dungeon(Actor& player, int room_max_amount, int room_min_size, int room_max_size, int max_monsters_per_room);
 
         void compute_fov(int x, int y, int radius);
 

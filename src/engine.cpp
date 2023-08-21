@@ -2,6 +2,11 @@
 #include "engine.hpp"
 #include "actor.hpp"
 
+static const int ROOM_MAX_SIZE = 10;
+static const int ROOM_MIN_SIZE = 6;
+static const int ROOM_MAX_AMOUNT = 15;
+static const int MAX_MONSTERS_PER_ROOM = 2;
+
 /// Return the data directory.
 auto get_data_dir() -> std::filesystem::path {
     static auto root_directory = std::filesystem::path{"."};  // Begin at the working directory.
@@ -35,18 +40,18 @@ Engine::Engine() : map(80,45), compute_fov(true), fov_radius(10) {
 
     g_context = tcod::Context(params);
 
-    actors.push_back(Actor(40,25,"@",tcod::ColorRGB{255,255,255}));
+    map.actors.push_back(Actor(40,25,"@",tcod::ColorRGB{255,255,255}));
 
-    map.generate_dungeon(get_player());
+    map.generate_dungeon(get_player(), ROOM_MAX_AMOUNT, ROOM_MIN_SIZE, ROOM_MAX_SIZE, MAX_MONSTERS_PER_ROOM);
 }
 
 Engine::~Engine() {
     // actors is a pointer so we kinda just delete all the actors' pointers before clearing
-    actors.clear();
+    map.actors.clear();
 }
 
 Actor& Engine::get_player() {
-    return actors[0];
+    return map.actors[0];
 }
 
 /// @brief Renders all actors
@@ -57,18 +62,13 @@ void Engine::render() {
 
     map.render(g_console);
 
-    for (auto &a : actors) {
-        if (map.is_in_fov(a.x, a.y))
-            tcod::print(g_console, {a.x, a.y}, a.character, a.color, std::nullopt);
-    }
-
     g_context.present(g_console);
 }
 
 /// @brief Updates all actors
 void Engine::update() {
     // loops thru all actors and updates them
-    for (auto &a : actors) {
+    for (auto &a : map.actors) {
         a.update(g_console, g_context);
     }
 }
@@ -76,7 +76,7 @@ void Engine::update() {
 void Engine::main_loop() {
     // get player actor
     Actor& player = get_player();
-    
+
     // handle input
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
@@ -93,7 +93,7 @@ void Engine::main_loop() {
                         x = player.x;
                         y = player.y + 1;
 
-                        if (map.get_tile(x, y).can_walk && map.is_in_bounds(x, y)){
+                        if (map.is_obstructed(x, y)){
                             player.move(0,1);
                             compute_fov = true;
                         }
@@ -102,7 +102,7 @@ void Engine::main_loop() {
                         x = player.x + 1;
                         y = player.y;
 
-                        if (map.get_tile(x, y).can_walk && map.is_in_bounds(x, y)){
+                        if (map.is_obstructed(x, y)){
                             player.move(1,0);
                             compute_fov = true;
                         }
@@ -111,7 +111,7 @@ void Engine::main_loop() {
                         x = player.x - 1;
                         y = player.y;
 
-                        if (map.get_tile(x, y).can_walk && map.is_in_bounds(x, y)){
+                        if (map.is_obstructed(x, y)){
                             player.move(-1,0);
                             compute_fov = true;
                         }
@@ -120,7 +120,7 @@ void Engine::main_loop() {
                         x = player.x;
                         y = player.y - 1;
 
-                        if (map.get_tile(x, y).can_walk && map.is_in_bounds(x, y)){
+                        if (map.is_obstructed(x, y)){
                             player.move(0,-1);
                             compute_fov = true;
                         }
