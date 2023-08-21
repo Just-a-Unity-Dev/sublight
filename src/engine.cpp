@@ -43,6 +43,8 @@ Engine::Engine() : map(80,45), compute_fov(true), fov_radius(10) {
     map.actors.push_back(actordefs::player);
 
     map.generate_dungeon(get_player(), ROOM_MAX_AMOUNT, ROOM_MIN_SIZE, ROOM_MAX_SIZE, MAX_MONSTERS_PER_ROOM);
+
+    handler = InputHandler();
 }
 
 Engine::~Engine() {
@@ -73,6 +75,39 @@ void Engine::update() {
     }
 }
 
+void InputHandler::bump_action(int dx, int dy) {
+    Actor& player = engine.get_player();
+
+    if (engine.map.get_blocking_actor_at_position(player.x + dx, player.y + dy).x != -1) {
+        attack_action(dx, dy);
+    } else {
+        move_action(dx, dy);
+    }
+}
+
+void InputHandler::move_action(int dx, int dy) {
+    Actor& player = engine.get_player();
+
+    if (!engine.map.is_obstructed(player.x + dx, player.y + dy)){
+        player.move(dx,dy);
+    }
+}
+
+void InputHandler::attack_action(int dx, int dy) {
+    Actor& player = engine.get_player();
+    Actor attacked = engine.map.get_blocking_actor_at_position(player.x + dx, player.y + dy);
+
+    printf(attacked.name);
+    if (attacked.x == -1) {
+        // nothing
+        return;
+    }
+}
+
+void InputHandler::toggle_combat_action() {
+    engine.combat_mode = !engine.combat_mode;
+}
+
 void Engine::main_loop() {
     // get player actor
     Actor& player = get_player();
@@ -90,40 +125,24 @@ void Engine::main_loop() {
                 int x, y = 0;
                 switch (event.key.keysym.sym) {
                     case SDLK_DOWN:
-                        x = player.x;
-                        y = player.y + 1;
-
-                        if (map.is_obstructed(x, y)){
-                            player.move(0,1);
-                            compute_fov = true;
-                        }
+                        engine.handler.bump_action(0, 1);
+                        compute_fov = true;
                         break;
                     case SDLK_RIGHT:
-                        x = player.x + 1;
-                        y = player.y;
-
-                        if (map.is_obstructed(x, y)){
-                            player.move(1,0);
-                            compute_fov = true;
-                        }
+                        engine.handler.bump_action(1, 0);
+                        compute_fov = true;
                         break;
                     case SDLK_LEFT:
-                        x = player.x - 1;
-                        y = player.y;
-
-                        if (map.is_obstructed(x, y)){
-                            player.move(-1,0);
-                            compute_fov = true;
-                        }
+                        engine.handler.bump_action(-1, 0);
+                        compute_fov = true;
                         break;
                     case SDLK_UP:
-                        x = player.x;
-                        y = player.y - 1;
-
-                        if (map.is_obstructed(x, y)){
-                            player.move(0,-1);
-                            compute_fov = true;
-                        }
+                        engine.handler.bump_action(0, -1);
+                        compute_fov = true;
+                        break;
+                    case SDLK_t:
+                        engine.handler.toggle_combat_action();
+                        compute_fov = true;
                         break;
                 }
         }

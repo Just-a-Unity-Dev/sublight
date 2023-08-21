@@ -50,7 +50,7 @@ void Map::place_entities(RectangularRoom& room, int max_monsters) {
         int x = random->getInt(room.x1 + 1, room.x2 - 1);
         int y = random->getInt(room.y1 + 1, room.y2 - 1);
 
-        if (is_obstructed(x, y)) {
+        if (!is_obstructed(x, y)) {
             // spawn a monster here
             Actor monster = actordefs::human;
             monster.x = x;
@@ -74,17 +74,30 @@ bool Map::is_in_bounds(int x, int y) const {
 
 bool Map::is_obstructed(int x, int y) const {
     if (is_wall(x, y)) {
-        return false;
+        return true;
     }
     if (!is_in_bounds(x, y)) {
-        return false;
+        return true;
     }
     for (auto actor : actors) {
         if (actor.x == x && actor.y == y && actor.blocks_movement) {
-            return false;
+            return true;
         }
     }
-    return true;
+    return false;
+}
+
+Actor Map::get_blocking_actor_at_position(int x, int y) {
+    Actor returned = actordefs::error;
+    
+    for (auto actor : actors) {
+        if (actor.x == x && actor.y == y && actor.blocks_movement) {
+            returned = actor;
+            break;
+        }
+    }
+
+    return returned;
 }
 
 void Map::set_tile(

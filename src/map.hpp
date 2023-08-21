@@ -28,6 +28,8 @@ class Map {
         bool is_obstructed(int x, int y) const;
         bool is_in_fov(int x, int y) const;
 
+        Actor get_blocking_actor_at_position(int x, int y) ;
+
         void place_entities(RectangularRoom& room, int max_monsters);
 
         void render(tcod::Console& g_console);
